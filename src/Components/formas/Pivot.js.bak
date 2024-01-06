@@ -1,0 +1,135 @@
+import React, { useState ,useEffect} from 'react';
+import * as WebDataRocksReact from 'react-webdatarocks';
+
+import 'webdatarocks/webdatarocks.css'
+/*
+
+npm i webdatarocks --save ??
+
+ para evitar q se vea 2 veces 
+ ----- nota: en index.js
+ root.render(
+  <>
+  <App />
+    </>,
+    document.getElementById('root')
+  );
+*/
+//  START INLCUIR 
+import { Navigate  } from 'react-router-dom';
+import { GetStatusLogin } from "../GetStatusLogin";
+import { useContext } from 'react';                     //Inlcuir
+import { AccountContext } from '../useContext/Account'; //Inlcuir
+//  END INLCUIR 
+
+function Pivot(props) {
+
+  //  START INLCUIR 
+const { status } = GetStatusLogin(); //Inlcuir
+// const [status, setstatus] = useState(false); 
+const { getUser,logout } = useContext(AccountContext);
+const user =  getUser();
+
+console.log("#########"); 
+console.log(user)
+console.log(status)
+//  END INLCUIR 
+
+
+
+  // props.mireporte
+  const [selectedValue, setSelectedValue] = useState('');
+  const[datos,setDatos] = useState([]);
+  const[mostrar,setMostrar] = useState(false);
+ const[mostrarg,setMostrarg] = useState(false);
+
+  const[reporte,setReporte] = useState({});
+
+  const baseurl = `${process.env.REACT_APP_ENDPOINT_DATA}/`; 
+  const baseurlov = `${process.env.REACT_APP_ENDPOINT_DATA}/lov/`; 
+
+ const baseserver = baseurl; 
+  const handleChange = (event) => {
+  
+  };
+
+  const cargarresultadosrep = async (report) => {
+
+    //alert('va a cargar datos');
+
+    try { 
+      const response = await fetch(baseserver+'reportes/find/' + props.mireporte); 
+      const data = await response.json(); 
+      setDatos(data.data); 
+      setMostrar(true);
+    } catch (error) { 
+      console.error(error); 
+    }
+  }
+
+  if (datos.length >0 && WebDataRocks)
+  {
+    try { 
+    let pivote = new WebDataRocks({
+      container: "#wdr-component",
+      toolbar: true,
+      report: {
+        dataSource: {
+        // data: [{'vendedor':'A','zona':'Z1','ciudad':'BAQ','venta':'23000'},{'vendedor':'A','zona':'Z2','ciudad':'BAQ','venta':'34000'},{'vendedor':'B','zona':'X1','ciudad':'BOG','venta':'99000'}]
+        data: datos
+        },
+        options: {
+          grid: {
+            type: "flat"
+          },
+          exportTo: {header:"xxxxxxxxxxxxxxxx"}
+        }
+      },
+      
+    });
+   }
+   catch (error) { 
+    alert( "Error invocando WDR " );
+    //console.error(error); 
+  }   
+
+  }  
+
+  useEffect(() => { 
+    //const rep = 1;
+    cargarresultadosrep(props.mireporte); 
+
+    console.log('datos brutos ');
+    console.log(datos);
+  
+  //setReporte(confrep);
+
+  console.log('datos del reporte ');
+  //console.log(confrep);
+  }, []); 
+
+  return (
+    <>
+    { user && user.username ? ( 
+    <> 
+    <div>
+      
+      <div id="x"  style={{ display: mostrar ? "none" : "block" }} >
+        Trabajando ...
+      </div>
+
+      <div>
+        <h2>{props.minomreporte}</h2>
+      </div>
+      <div id="wdr-component" style={{ display: mostrar ? "block" : "none" }} >
+        Tablero
+      </div>
+
+    </div>
+    </> 
+    ): ( <Navigate to="/login" /> )  }
+    </>
+  );
+}
+// "https://cdn.webdatarocks.com/reports/report.json"
+export default Pivot;
